@@ -1,0 +1,11 @@
+pytorch
+torchvision
+numpy
+matplotlib
+h5py
+tensorboard
+tensorboardX
+notebook
+ipython
+coverage
+tdqm
