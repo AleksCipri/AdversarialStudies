@@ -84,4 +84,4 @@ trained in the previous notebook, and save the attacked images in local
 HDF5 files.
 3. `visualiz_fgsm_attack_star_galaxy.ipynb` -- visualize the "attacked" images
 for a given attack strength and save copies to a PDF for later viewing.
-# AdversarialStudies
+
