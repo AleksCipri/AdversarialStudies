@@ -7,6 +7,7 @@ fash_synth_*.h5
 sg_synth_*.npy
 sg_synth_*.h5
 atk_sg_synth.h5
+test_vanilla_trainer.tar
 
 # logs
 log_*txt
@@ -19,3 +20,7 @@ log_*txt
 
 # Mac silliness
 .DS_Store
+
+# compiled code
+ptlib/__pycache__/
+tests/__pycache__/
