@@ -13,14 +13,17 @@ LOGGER = logging.getLogger(__name__)
 
 
 class FGSMAttacker(ModelHandlerBase):
-    def __init__(self, data_manager, model, ckpt_path, log_freq=100):
+    def __init__(self, data_manager, model, ckpt_path, log_freq=100,
+                 attack_correct_labels_only=False, hdf5filename_base='fgsm_'):
         '''
-        epsilons - scalar or list (iterable) of scales to apply to attack
+        By default we attack all images whether they were correctly predicted
+        by the model or not. `hdf5filename_base` should be the full path to the
+        output HDF5 file for attacked images.
         '''
         super(FGSMAttacker, self).__init__(
             data_manager, model, ckpt_path, log_freq)
-        self.hdf5filename_base = 'fgsm_'
-        self.attack_correct_labels_only = False  # TODO - make an init arg
+        self.hdf5filename_base = hdf5filename_base
+        self.attack_correct_labels_only = attack_correct_labels_only
 
     def _fgsm_attack(self, image, epsilon, data_grad):
         '''
@@ -28,12 +31,12 @@ class FGSMAttacker(ModelHandlerBase):
         '''
         mean = torch.FloatTensor(np.load(self.dm.meanfile))
         std = torch.FloatTensor(np.load(self.dm.stdfile))
-        # TODO - do we need to de-and-re-normalize the image? (we are)
         perturbed_image = image * std + mean
         data_grad_sign = data_grad.sign()
         perturbed_image = perturbed_image + epsilon * data_grad_sign
         perturbed_image = torch.clamp(perturbed_image, 0, 1)
         perturbed_image = (perturbed_image - mean) / std
+        # TODO: decide if we need to clamp the image to be in [0, 1]?
         # perturbed_image = torch.clamp(perturbed_image, minval, maxval)
         return perturbed_image
 
@@ -47,7 +50,6 @@ class FGSMAttacker(ModelHandlerBase):
         perturbed_outputs = torch.stack(perturbed_outputs).numpy()
         adv_examples = torch.stack(adv_examples).numpy() * std + mean
         adv_examples = np.clip(adv_examples, 0, 1)
-        # TODO - need an output path for the hdf5s
         hdf5filename = self.hdf5filename_base + \
             '{:4.3f}'.format(epsilon).replace('.', '_') + '.hdf5'
         if os.path.isfile(hdf5filename):
@@ -87,7 +89,6 @@ class FGSMAttacker(ModelHandlerBase):
             initial_pred = output.max(1, keepdim=True)[1][0]
             LOGGER.debug('initial pred = {}, label = {}'.format(
                 initial_pred.item(), labels.item()))
-            # TODO - not sure about this, want to attack wrong labels also?
             if self.attack_correct_labels_only and \
                     (initial_pred.item() != labels.item()):
                 continue
