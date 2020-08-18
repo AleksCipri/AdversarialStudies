@@ -1,7 +1,7 @@
 #!/bin/bash
 
 DATADIR="/Users/perdue/Dropbox/Data/Workspace"
-EXE="attack_stargalaxy.py"
+EXE="fgsm_attack_stargalaxy.py"
 DAT=`date +%s`
 
 ARGS="--ckpt-path sg_ckpt.tar"

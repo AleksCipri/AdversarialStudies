@@ -18,6 +18,9 @@ log_*txt
 # attacked hdf5s
 *hdf5
 
+# trained models
+*.tar
+
 # Mac silliness
 .DS_Store
 
