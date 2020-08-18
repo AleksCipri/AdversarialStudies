@@ -1,19 +1,19 @@
 # Top-level Contents
 
-* `attack_stargalaxy.py` -- script to run an attacker on the star-galaxy
-  dataset.
 * `check_coverage.sh` -- run `coverage` over test suite (via `run_tests.py`)
   and report unit test coverage.
 * `cleanup.sh` -- remove development detritus, pyc files, etc.
 * `dset_viz_attacked_stargalaxy.py` -- visualize star-galaxy data attacked by
   an adversary.
 * `dset_viz_stargalaxy.py` -- visualize star-galaxy data.
+* `fgsm_attack_stargalaxy.py` -- script to run an FGSM attacker on the
+  star-galaxy dataset.
 * `notebooks` -- Jupyter notebooks for using the libraries here.
   See below for more information.
 * `ptlib/` -- lib dir for PyTorch code modules.
 * `requirements.txt` -- packages needed to run everything.
-* `run_attack_stargalaxy.sh` -- bash script to wrap `attack_stargalaxy.py` with
-  convenience arguments.
+* `run_fgsm_attack_stargalaxy.sh` -- bash script to wrap
+  `fgsm_attack_stargalaxy.py` with convenience arguments.
 * `run_dset_viz_atacked_stargalaxy.sh` -- bash script to wrap
   `dset_viz_attacked_stargalaxy.py` with convenience arguments.
 * `run_tests.py` -- run all tests in `tests/`; generally best to avoid running
