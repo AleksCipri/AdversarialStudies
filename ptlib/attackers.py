@@ -8,14 +8,91 @@ import h5py
 import numpy as np
 import torch
 from ptlib.model_handlers import ModelHandlerBase
+from mathlib.differential_evolution import differential_evolution
+
 
 LOGGER = logging.getLogger(__name__)
+
+
+class DiffEvoAttacker(ModelHandlerBase):
+    def __init__(self, data_manager, model, ckpt_path, log_freq=100,
+                 attack_correct_labels_only=False,
+                 hdf5filename_base='diffevo_'):
+        '''
+        Differential Evolution Attacker ("one pixel" attack)
+
+        By default we attack all images whether they were correctly predicted
+        by the model or not. `hdf5filename_base` should be the full path to the
+        output HDF5 file for attacked images.
+        '''
+        super(FGSMAttacker, self).__init__(
+            data_manager, model, ckpt_path, log_freq)
+        self.hdf5filename_base = hdf5filename_base
+        self.attack_correct_labels_only = attack_correct_labels_only
+
+    def _de_attack(self, imgw=48, imgh=48, maxiter=75, pixels=1, popsize=400):
+        '''
+        img width, img height default to 48, 48 -- for star-galaxy dataset
+        '''
+
+        def _predict_fn():
+            pass
+
+        def _callback_fn():
+            pass
+
+        # TODO - color channels hardcoded to CIFAR10 images
+        bounds = [(0, imgw), (0, imgh), (0, 255), (0, 255), (0, 255)] * pixels
+
+        popmul = max(1, popsize // len(bounds))
+
+        inits = np.zeros([popmul*len(bounds), len(bounds)])
+        for init in inits:
+            for i in range(pixels):
+                init[i*5+0] = np.random.random()*32
+                init[i*5+1] = np.random.random()*32
+                init[i*5+2] = np.random.normal(128, 127)
+                init[i*5+3] = np.random.normal(128, 127)
+                init[i*5+4] = np.random.normal(128, 127)
+
+        attack_result = differential_evolution(
+            _predict_fn, bounds, maxiter=maxiter, popsize=popmul,
+            recombination=1, atol=-1, callback=_callback_fn, polish=False,
+            init=inits)
+
+        print(attack_result)
+
+    def attack_all(self, max_examps=10, max_iterations=100, num_pixels=1,
+                   pop_size=400, short_test=False, targeted=False,
+                   verbose=False):
+        LOGGER.info('attack_all')
+        _, _, test_dl = self.dm.get_data_loaders(batch_size=1)
+        seen, correct = 0, 0
+        true_labels = []
+        initial_outputs = []
+        perturbed_outputs = []
+        adv_example_images = []
+        self.model.eval()
+
+        for batch_idx, (inputs, labels) in enumerate(test_dl, 0):
+            if short_test and batch_idx >= 2:
+                break
+            seen += 1
+
+            if max_examps and batch_idx >= max_examps:
+                print("stopping after set number of max examples")
+                break
+
+            if verbose:
+                print("attacking batch_idx = {}".format(batch_idx))
 
 
 class FGSMAttacker(ModelHandlerBase):
     def __init__(self, data_manager, model, ckpt_path, log_freq=100,
                  attack_correct_labels_only=False, hdf5filename_base='fgsm_'):
         '''
+        Fast Gradient Sign Method Attacker
+
         By default we attack all images whether they were correctly predicted
         by the model or not. `hdf5filename_base` should be the full path to the
         output HDF5 file for attacked images.
