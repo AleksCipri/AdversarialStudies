@@ -25,7 +25,7 @@ class DiffEvoAttacker(ModelHandlerBase):
         by the model or not. `hdf5filename_base` should be the full path to the
         output HDF5 file for attacked images.
         '''
-        super(FGSMAttacker, self).__init__(
+        super(DiffEvoAttacker, self).__init__(
             data_manager, model, ckpt_path, log_freq)
         self.hdf5filename_base = hdf5filename_base
         self.attack_correct_labels_only = attack_correct_labels_only
