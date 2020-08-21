@@ -86,6 +86,17 @@ class DiffEvoAttacker(ModelHandlerBase):
             if verbose:
                 print("attacking batch_idx = {}".format(batch_idx))
 
+            with torch.no_grad():
+                output = self.model(inputs)
+                if verbose:
+                    print(output)
+                initial_pred = output.max(1, keepdim=True)[1][0]
+                LOGGER.debug('initial pred = {}, label = {}'.format(
+                    initial_pred.item(), labels.item()))
+                if self.attack_correct_labels_only and \
+                        (initial_pred.item() != labels.item()):
+                    continue
+
 
 class FGSMAttacker(ModelHandlerBase):
     def __init__(self, data_manager, model, ckpt_path, log_freq=100,
@@ -160,7 +171,6 @@ class FGSMAttacker(ModelHandlerBase):
         for iter_num, (inputs, labels) in enumerate(test_dl, 0):
             if short_test and iter_num >= 40:
                 break
-            seen += 1
             inputs.requires_grad = True
             output = self.model(inputs)
             initial_pred = output.max(1, keepdim=True)[1][0]
@@ -169,6 +179,7 @@ class FGSMAttacker(ModelHandlerBase):
             if self.attack_correct_labels_only and \
                     (initial_pred.item() != labels.item()):
                 continue
+            seen += 1
             loss = self.criterion(output, labels)
             LOGGER.debug('loss = {}'.format(loss.item()))
             self.model.zero_grad()
