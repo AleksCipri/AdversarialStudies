@@ -10,6 +10,7 @@ class ModelHandlerBase(object):
     def __init__(self, data_manager, model, ckpt_path, log_freq):
         self.dm = data_manager
         self.model = model
+        # TODO - maybe; consider moving ckpt ownership to model itself
         self.ckpt_path = ckpt_path
         self.log_freq = log_freq
         self.device = torch.device(
