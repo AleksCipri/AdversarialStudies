@@ -1,4 +1,10 @@
 """
+Note: most everything below (except for some updates to satisfy PEP style
+guides and linters) came from:
+    https://github.com/DebangLi/one-pixel-attack-pytorch
+
+---
+
 A slight modification to Scipy's implementation of differential evolution. To
 speed up predictions, the entire parameters array is passed to `self.func`,
 where a neural network model can batch its computations.
