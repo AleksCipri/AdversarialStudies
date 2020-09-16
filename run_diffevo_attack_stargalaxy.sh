@@ -14,7 +14,6 @@ ARGS+=" --max-iterations 100"
 ARGS+=" --num-pixels 1"
 ARGS+=" --pop-size 400"
 ARGS+=" --short-test"
-ARGS+=" --targeted"
 ARGS+=" --verbose"
 
 # show exe and args

@@ -30,9 +30,12 @@ class DiffEvoAttacker(ModelHandlerBase):
         self.hdf5filename_base = hdf5filename_base
         self.attack_correct_labels_only = attack_correct_labels_only
 
-    def _de_attack(self, imgw=48, imgh=48, maxiter=75, pixels=1, popsize=400):
+    def _de_attack(self, maxiter=75, pixels=1, popsize=400, imgw=48, imgh=48):
         '''
-        img width, img height default to 48, 48 -- for star-galaxy dataset
+        img width, img height default to 48, 48 -- for star-galaxy dataset;
+        note that this is really hardcoded at this point despite implied
+        flexibility in these values showing up in the method args...
+        TODO - should ask the model how big the input image is
         '''
 
         def _predict_fn():
@@ -62,10 +65,20 @@ class DiffEvoAttacker(ModelHandlerBase):
 
         print(attack_result)
 
+        # if successful: return 1, attack_result
+        # -- 0 is a placeholder...
+        return 0, attack_result
+
     def attack_all(self, max_examps=10, max_iterations=100, num_pixels=1,
                    pop_size=400, short_test=False, targeted=False,
                    verbose=False):
+        '''
+        Note - this function isn't set up for targeted attakcs yet as we are
+        starting with the star-galaxy problem (so, just two classes).
+        '''
         LOGGER.info('attack_all')
+        if targeted:
+            raise ValueError("Not configured for targeted attacks yet.")
         _, _, test_dl = self.dm.get_data_loaders(batch_size=1)
         seen, correct = 0, 0
         true_labels = []
@@ -85,6 +98,8 @@ class DiffEvoAttacker(ModelHandlerBase):
 
             if verbose:
                 print("attacking batch_idx = {}".format(batch_idx))
+                print("iputs shape:", inputs.shape)
+                print("labels:", labels)
 
             with torch.no_grad():
                 output = self.model(inputs)
@@ -96,6 +111,10 @@ class DiffEvoAttacker(ModelHandlerBase):
                 if self.attack_correct_labels_only and \
                         (initial_pred.item() != labels.item()):
                     continue
+                correct += 1
+
+#                success, result = self._de_attack(
+#                    maxiter=75, pixels=1, popsize=400)
 
 
 class FGSMAttacker(ModelHandlerBase):
