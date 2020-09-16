@@ -2,6 +2,7 @@ THIS IS A PROGRMATICALLY GENERATED FILE. DO NOT EDIT BY HAND.
 dset_viz_stargalaxy.py:TODO - make a viz library for use in other modules
 mathlib/differential_evolution.py:        # TODO: vectorize
 mathlib/differential_evolution.py:        # TODO: vectorize
+ptlib/attackers.py:        TODO - should ask the model how big the input image is
 ptlib/attackers.py:        # TODO - color channels hardcoded to CIFAR10 images
 ptlib/attackers.py:        # TODO: decide if we need to clamp the image to be in [0, 1]?
 ptlib/model_handlers.py:        # TODO - maybe; consider moving ckpt ownership to model itself
