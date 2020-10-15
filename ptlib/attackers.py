@@ -30,13 +30,57 @@ class DiffEvoAttacker(ModelHandlerBase):
         self.hdf5filename_base = hdf5filename_base
         self.attack_correct_labels_only = attack_correct_labels_only
 
-    def _de_attack(self, maxiter=75, pixels=1, popsize=400, imgw=48, imgh=48):
+    def _de_attack(self, input_img, maxiter=75, pixels=1, popsize=400,
+                   imgw=48, imgh=48):
         '''
         img width, img height default to 48, 48 -- for star-galaxy dataset;
         note that this is really hardcoded at this point despite implied
         flexibility in these values showing up in the method args...
         TODO - should ask the model how big the input image is
         '''
+
+        def _perturb_img(xs, img):
+            '''
+            xs - solution array from the differential_evolution call. will be
+            of length 5*number_of_pixels attacked
+            img - the image to be perturbed.
+
+            TODO - all sorts of CIFAR10 hardcoding here - totally broken now
+
+            de-norm:
+            mean = torch.FloatTensor(np.load(self.dm.meanfile))
+            std = torch.FloatTensor(np.load(self.dm.stdfile))
+            perturbed_image = image * std + mean
+            '''
+            if xs.ndim < 2:
+                xs = np.array([xs])
+            # len(xs) will be number of attacked pixels
+            batch = len(xs)
+            # basically we want to make a copy of the image for each number of
+            # attacked pixels
+            imgs = img.repeat(batch, 1, 1, 1)
+            # TOOO - `asint` is a CIFAR10 holdover - we want to make the first
+            # two into ints - these are pixel positions
+            xs = xs.astype(int)
+
+            count = 0
+            for x in xs:
+                # break into a 5-length array for each pixel in number of
+                # attacked pixels
+                pixels = np.split(x, len(x) / 5)
+                # loop over pixels list, and for each perturb the image at the
+                # target location by the target amount, and normalize
+                for pixel in pixels:
+                    x_pos, y_pos, r, g, b = pixel
+                    imgs[count, 0, x_pos, y_pos] = \
+                        (r / 255.0 - 0.4914) / 0.2023
+                    imgs[count, 1, x_pos, y_pos] = \
+                        (g / 255.0 - 0.4822) / 0.1994
+                    imgs[count, 2, x_pos, y_pos] = \
+                        (b / 255.0 - 0.4465) / 0.2010
+                count += 1
+
+            return imgs
 
         def _predict_fn():
             pass
@@ -49,14 +93,19 @@ class DiffEvoAttacker(ModelHandlerBase):
 
         popmul = max(1, popsize // len(bounds))
 
+        # inits will be shape (popsize, 5 * num_pixels_attacked); for each
+        # member of the population, and for each attacked pixel, choose
+        # an attack pixel (x,y) and a random rgb starting point. SG images are
+        # normalized between 0 and 1, so just pick a point in that range for
+        # each of rgb.
         inits = np.zeros([popmul*len(bounds), len(bounds)])
         for init in inits:
             for i in range(pixels):
                 init[i*5+0] = np.random.random()*32
                 init[i*5+1] = np.random.random()*32
-                init[i*5+2] = np.random.normal(128, 127)
-                init[i*5+3] = np.random.normal(128, 127)
-                init[i*5+4] = np.random.normal(128, 127)
+                init[i*5+2] = np.random.random()
+                init[i*5+3] = np.random.random()
+                init[i*5+4] = np.random.random()
 
         attack_result = differential_evolution(
             _predict_fn, bounds, maxiter=maxiter, popsize=popmul,
@@ -93,6 +142,7 @@ class DiffEvoAttacker(ModelHandlerBase):
             seen += 1
 
             if max_examps and batch_idx >= max_examps:
+                LOGGER.info("stopping after set number of max examples")
                 print("stopping after set number of max examples")
                 break
 
@@ -113,8 +163,8 @@ class DiffEvoAttacker(ModelHandlerBase):
                     continue
                 correct += 1
 
-#                success, result = self._de_attack(
-#                    maxiter=75, pixels=1, popsize=400)
+               success, result = self._de_attack(
+                   inputs, maxiter=75, pixels=1, popsize=400)
 
 
 class FGSMAttacker(ModelHandlerBase):
