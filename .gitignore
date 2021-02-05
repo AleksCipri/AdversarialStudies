@@ -25,5 +25,6 @@ log_*txt
 .DS_Store
 
 # compiled code
+mathlib/__pycache__/
 ptlib/__pycache__/
 tests/__pycache__/

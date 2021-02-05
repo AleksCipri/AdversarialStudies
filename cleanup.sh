@@ -12,10 +12,13 @@ rm -fv atk_sg_synth.h5
 
 # save meaningful logs
 mv -fv log_vanilla*.txt archive/
-mv -fv log_attack*.txt archive/
+mv -fv log_fgsm_attack*.txt archive/
 
 # remove testing logs
 rm -fv log_run_tests*.txt
+
+# evntually save these...
+rm -fv log_diffevo_attack*.txt
 
 # archive training artifacts
 FILELIST="sg_ckpt.tar short_test.tar"
