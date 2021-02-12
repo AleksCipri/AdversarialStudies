@@ -122,7 +122,7 @@ class AttackedStarGalaxyDataset(Dataset):
 
 
 class AttackedLSBGDataset(Dataset):
-	label_names = ['LSBG', 'artifact']
+	label_names = ['artifact', 'LSBG']
 
 	def __init__(self, hdf5_file, transform=None):
 		super(AttackedLSBGDataset, self).__init__()
