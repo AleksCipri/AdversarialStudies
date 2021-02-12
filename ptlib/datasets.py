@@ -4,9 +4,6 @@ import h5py
 
 
 
-
-
-
 class FashionMNISTDataset(Dataset):
 
     label_names = [
@@ -38,7 +35,7 @@ class FashionMNISTDataset(Dataset):
 
 class LSBGDataset(Dataset):
 
-    label_names = ['LSBG', 'artifact']
+    label_names = ['artifact', 'LSBG']
 
     def __init__(self, hdf5_file, transform=None):
         super(LSBGDataset, self).__init__()
