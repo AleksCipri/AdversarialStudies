@@ -8,6 +8,7 @@ import os
 
 from ptlib.datasets import FashionMNISTDataset
 from ptlib.datasets import StarGalaxyDataset
+from ptlib.datasets import LSBGDataset
 from ptlib.transforms import Standardize
 from ptlib.transforms import ToTensor
 from ptlib.transforms import AttackedToTensor
@@ -62,6 +63,8 @@ class DataManagerBase(object):
 
         train_dataloader = None
         if self.trainfile is not None:
+            #print(trnsfrms.shape)
+            #print(self.trainfile.shape)
             trainset = self.data_set_cls(self.trainfile, trnsfrms)
             train_dataloader = WrapDataLoader(DataLoader(
                 trainset,
@@ -120,6 +123,23 @@ class StarGalaxyDataManager(DataManagerBase):
         self.meanfile = os.path.join(data_dir, 'star_galaxy_mean.npy')
         self.stdfile = os.path.join(data_dir, 'star_galaxy_stddev.npy')
         self.label_names = StarGalaxyDataset.label_names
+        self.img_h5_dset_name = 'imageset'
+
+
+class LSBGDataManager(DataManagerBase):
+    '''main data access class for LSBG dset'''
+    def __init__(self, data_dir):
+        super(LSBGDataManager, self).__init__(
+            data_dir, LSBGDataset)
+        self.testfile = os.path.join(
+            data_dir, 'test.hdf5')
+        self.trainfile = os.path.join(
+            data_dir, 'train.hdf5')
+        self.validfile = os.path.join(
+            data_dir, 'val.hdf5')
+        self.meanfile = os.path.join(data_dir, 'LSBG_mean.npy')
+        self.stdfile = os.path.join(data_dir, 'LSBG_stddev.npy')
+        self.label_names = LSBGDataset.label_names
         self.img_h5_dset_name = 'imageset'
 
 

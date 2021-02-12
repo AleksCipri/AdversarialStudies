@@ -19,8 +19,7 @@ class VanillaTrainer(ModelHandlerBase):
     def train(self, num_epochs, batch_size, short_test=False):
         LOGGER.info('Starting training for {} for {} epochs'.format(
             self.__class__.__name__, num_epochs))
-        train_dl, valid_dl, _ = self.dm.get_data_loaders(
-            batch_size=batch_size)
+        train_dl, valid_dl, _ = self.dm.get_data_loaders(batch_size=batch_size)
         for epoch in self._f(range(
                 self.start_epoch, self.start_epoch + num_epochs)):
             LOGGER.info('training epoch {}'.format(epoch + 1))
